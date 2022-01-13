@@ -1,9 +1,9 @@
 from sqlalchemy import Integer, String, DateTime
 from sqlalchemy.sql.schema import Column
-from ..database import base
+from .database import Base
 
 
-class Blog(base):
+class Blog(Base):
     __tablename__ = 'blog'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
