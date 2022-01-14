@@ -1,15 +1,15 @@
 from fastapi import FastAPI, Depends
-from .blog_schemas import CreateBlogRequest
+from .request_schemas import CreateBlogRequest
+from .response_schemas import ViewModelResponse, map_view_model_response
 from sqlalchemy.orm import Session
 from .database import get_db
-from .blog import Blog
-from _datetime import datetime
-from .content import Content, from_content_base
-from .content_schemas import ContentBase
+from .blog import Blog, commit_new_blog, retrieve_blogs, retrieve_blog
+from .content import ContentBase, from_content_list, commit_new_content, retrieve_content_by_blog
 import logging
 
 app = FastAPI()
 logging.basicConfig(filename='error.log', level=logging.ERROR)
+logging.basicConfig(filename='debug.log', level=logging.DEBUG)
 
 
 @app.post('/blog')
@@ -32,49 +32,54 @@ def create_blog(request: CreateBlogRequest, db: Session = Depends(get_db)):
 @app.get('/blog')
 def get_blogs(db: Session = Depends(get_db)):
     try:
-        return db.query(Blog).all()
+        return retrieve_blogs(db)
     except Exception as e:
         logging.error(e)
         return {
             "error": '{e}'.format(e=e)
         }
 
-# @app.get('/blog/view')
-# def get_blogs_with_content(db: Session = Depends(get_db)):
-#     try:
-#         blogs : list[Blog] = db.query(Blog).all()
-#         content : list[Content] = db.query(Content).all()
-#
-#         for blog in blogs:
-#
-#
-#     except Exception as e:
-#         logging.error(e)
-#         return {
-#             "error": '{e}'.format(e=e)
-#         }
 
-def commit_new_blog(db, request):
+@app.get('/blog/view', response_model=list[ViewModelResponse])
+def get_blogs_with_content(db: Session = Depends(get_db)):
+    view_model_response_list = []
     try:
-        new_blog = Blog(
-            title=request.title,
-            publish_date=datetime.now()
-        )
-        db.add(new_blog)
-        db.commit()
-        return new_blog
+        all_blogs: list[Blog] = retrieve_blogs(db)
+
+        for blog in all_blogs:
+            blog_content: list[ContentBase] = from_content_list(retrieve_content_by_blog(blog, db))
+            view_model_response_list.append(map_view_model_response(blog, blog_content))
+        return view_model_response_list
+
     except Exception as e:
-        raise e
+        logging.error(e)
+        return {
+            "error": '{e}'.format(e=e)
+        }
 
 
-def commit_new_content(blog_id: int, content_base_list: list[ContentBase], db: Session) -> list[Content]:
+@app.get('/blog/{blog_id}')
+def get_blog(blog_id: int, db: Session = Depends(get_db)):
     try:
-        new_content = []
-        for content_base in content_base_list:
-            new_content.append(from_content_base(blog_id, content_base))
-        for content in new_content:
-            db.add(content)
-        db.commit()
-        return new_content
+        return retrieve_blog(blog_id, db)
+
     except Exception as e:
-        raise e
+        logging.error(e)
+        return {
+            "error": '{e}'.format(e=e)
+        }
+
+
+@app.get('/blog/{blog_id}/view', response_model=ViewModelResponse)
+def get_blog_with_content(blog_id: int, db: Session = Depends(get_db)):
+    try:
+        blog: Blog = retrieve_blog(blog_id, db)
+        blog_content: list[ContentBase] = from_content_list(retrieve_content_by_blog(blog, db))
+        return map_view_model_response(blog, blog_content)
+
+    except Exception as e:
+        logging.error(e)
+        return {
+            "error": '{e}'.format(e=e)
+        }
+

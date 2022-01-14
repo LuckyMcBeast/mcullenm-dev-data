@@ -3,3 +3,7 @@ venv
 .idea
 *.pyc
 *.pyo
+error.log
+alembic.ini
+alembic
+db_data

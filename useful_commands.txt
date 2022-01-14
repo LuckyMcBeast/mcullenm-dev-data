@@ -1,0 +1,30 @@
+Alembic
+-------
+alembic init alembic
+alembic revision -m "nameOfChange"
+alembic upgrade head
+
+First revision:
+    def upgrade():
+        op.create_table(
+            'blog',
+            sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
+            sa.Column('title', sa.String, nullable=False),
+            sa.Column('publish_date', sa.DateTime, nullable=False)
+        )
+        op.create_table(
+            'content',
+            sa.Column('blog_id', sa.Integer, sa.ForeignKey("blog.id"), primary_key=True),
+            sa.Column('position', sa.Integer, primary_key=True),
+            sa.Column('type', sa.String, nullable=False),
+            sa.Column('value', sa.String, nullable=False)
+        )
+
+    def downgrade():
+        op.drop_table('blog')
+        op.drop_table('content')
+
+Uvicorn
+-------
+uvicorn src.main:app --reload
+
