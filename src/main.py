@@ -7,6 +7,7 @@ from .blog import Blog, commit_new_blog, retrieve_blogs, retrieve_blog
 from .content import ContentBase, from_content_list, commit_new_content, retrieve_content_by_blog
 import logging
 
+
 app = FastAPI()
 logging.basicConfig(filename='error.log', level=logging.ERROR)
 logging.basicConfig(filename='debug.log', level=logging.DEBUG)
@@ -25,6 +26,7 @@ def create_blog(request: CreateBlogRequest, db: Session = Depends(get_db)):
     except Exception as e:
         logging.error(e)
         return {
+            "success": False, 
             "error": '{e}'.format(e=e)
         }
 
