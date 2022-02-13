@@ -5,5 +5,5 @@ docker start mcullenm_dev_db
 echo "Starting Python Virtual Enviroment..."
 source venv/bin/activate
 echo "Starting Uvicorn Server..."
-uvicorn src.main:app --reload
-
+nohup uvicorn src.main:app --reload &
+echo "Done."

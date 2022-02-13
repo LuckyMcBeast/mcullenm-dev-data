@@ -7,3 +7,4 @@ error.log
 alembic.ini
 alembic
 db_data
+.out
