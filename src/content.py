@@ -9,7 +9,8 @@ import enum
 class Content(Base):
     __tablename__ = 'content'
 
-    blog_id = Column(Integer, ForeignKey("blog.id"), primary_key=True, autoincrement=False)
+    blog_id = Column(Integer, ForeignKey("blog.id"),
+                     primary_key=True, autoincrement=False)
     position = Column(Integer, primary_key=True)
     type = Column(String, nullable=False)
     value = Column(String, nullable=False)
@@ -62,5 +63,17 @@ def commit_new_content(blog_id: int, content_base_list: list[ContentBase], db: S
         raise e
 
 
+def commit_updated_content(blog_id: int, updated_content_list: list[ContentBase], db: Session) -> list[Content]:
+    try:
+        remove_content_by_blog_id(blog_id, db)
+        return commit_new_content(blog_id, updated_content_list, db)
+    except Exception as e:
+        raise e
+
+
 def retrieve_content_by_blog(blog, db):
     return db.query(Content).filter_by(blog_id=blog.id)
+
+
+def remove_content_by_blog_id(blog_id, db):
+    db.query(Content).filter_by(blog_id=blog_id).delete()
