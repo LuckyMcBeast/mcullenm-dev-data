@@ -1,0 +1,28 @@
+Ubuntu 20.04 does not have Python 3.10. In order to use, it do the following.
+
+Add Deadsnakes PPA: 
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+
+Install Python3.10:
+
+sudo apt install python3.10
+
+Install virtualenv apt and activate in appropriate directory:
+
+sudo apt install python3-virtualenv
+virtualenv --python=python3.10 venv
+
+If run into error, install:
+
+sudo apt install python3.10-venv
+
+Install pipenv:
+
+sudo apt install pipenv
+pipenv shell
+curl -sS https://bootstrap.pypa.io/get-pip.py | python
+
+https://stackoverflow.com/questions/47822740/how-to-use-virtualenv-with-python3-6-on-ubuntu-16-04
+https://computingforgeeks.com/how-to-install-python-on-ubuntu-linux-system/
+https://askubuntu.com/questions/1372119/ubuntu-20-04-python-3-10-pip-import-error
